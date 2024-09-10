@@ -5,9 +5,25 @@ import './App.css'
 import CustomerRewards from './CustomerRewards'
 import { fetchTransactions } from './BusinessLogic/utils'
 
+
 function App() {
   const [transactions, setTransactions] = useState([])
-  const [loading,setLoading]=useState(true)
+  const [status,setStatus]=useState("loading")
+
+  // to handle error, loading scenario
+  const getStatus=(status)=>{
+    switch(status){
+      case 'loading':
+      return <div>Loading transaction...</div>
+      case 'error':
+      return <div>Error in fetching data...</div>
+      case 'success':
+      return <div>{transactions && <CustomerRewards transactions={transactions} />}</div>
+      default:
+        return <div>Some Error occured</div>
+  
+    }
+  }
 
   // API call
   useEffect(()=>{
@@ -15,10 +31,11 @@ function App() {
       try{
       const data= await fetchTransactions();
         setTransactions(data)
-        setLoading(false)
+        setStatus("success")
       }
       catch(error){
         console.log("Error occured in API call")
+        setStatus("error");
       }
     }
     fetchData();
@@ -28,12 +45,7 @@ function App() {
   <div>
 
     <h1>Customer reward Points</h1>
-
-    { loading ? <div>Loading transaction...</div>
-    :  
-      (transactions &&
-      <CustomerRewards transactions={transactions} />)
-    }
+    {getStatus(status)}
 
   </div>
   )
